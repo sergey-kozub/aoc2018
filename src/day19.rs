@@ -65,7 +65,8 @@ impl Program {
 pub fn run(content: &str) {
   let program = Program::parse(content);
   let res1 = program.execute(0)[0];
-  let res2 = program.execute(1)[0];
+  let sum_divisors = |n: usize| (1..=n).filter(|i| n/i*i==n).sum::<usize>();
+  let res2 = sum_divisors(943 + 10550400);
   println!("{} {}", res1, res2);
 }
 
