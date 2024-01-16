@@ -2,7 +2,7 @@ use self::OpCode::*;
 use std::collections::HashSet;
 use std::slice::Iter;
 
-pub type Value = u32;
+pub type Value = u64;
 type Registers = [Value; 4];
 type Input = [Value; 4];
 type Sample = (Registers, Input, Registers);

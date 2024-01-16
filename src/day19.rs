@@ -1,7 +1,7 @@
 use crate::day16::{Computer, OpCode, Value};
 
 #[derive(Debug)]
-struct Program {
+pub struct Program {
   ip_index: usize,
   instructions: Vec<(OpCode, Value, Value, Value)>,
 }
@@ -29,7 +29,7 @@ impl Program {
     }
   }
 
-  fn parse(text: &str) -> Self {
+  pub fn parse(text: &str) -> Self {
     let mut ip_index = 0_usize;
     let mut instructions = vec![];
     for line in text.lines() {
@@ -48,15 +48,23 @@ impl Program {
     Program { ip_index, instructions }
   }
 
+  pub fn size(&self) -> usize {
+    self.instructions.len()
+  }
+
+  pub fn step(&self, comp: &mut Computer, ip: Value) -> Value {
+    let (op, a, b, c) = self.instructions[ip as usize];
+    comp.reg[self.ip_index] = ip;
+    comp.execute(op, a, b, c);
+    comp.reg[self.ip_index] + 1
+  }
+
   fn execute(&self, init: Value) -> Vec<Value> {
     let mut comp = Computer::new(6);
     let mut ip: Value = 0;
     comp.reg[0] = init;
-    while (ip as usize) < self.instructions.len() {
-      let (op, a, b, c) = self.instructions[ip as usize];
-      comp.reg[self.ip_index] = ip;
-      comp.execute(op, a, b, c);
-      ip = comp.reg[self.ip_index] + 1;
+    while (ip as usize) < self.size() {
+      ip = self.step(&mut comp, ip);
     }
     comp.reg
   }
