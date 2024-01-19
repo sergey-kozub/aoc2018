@@ -1,20 +1,28 @@
-use crate::day16::{Computer, Value};
+use crate::day16::{Computer, OpCode, Value};
 use crate::day19::Program;
 use std::collections::HashSet;
 
-fn check_finish(program: &Program, init: Value) -> bool {
+fn execute(program: &Program, last: bool) -> Value {
   let mut comp = Computer::new(6);
-  let mut ip: Value = 0;
-  let mut visited = HashSet::<Vec<Value>>::new();
-  comp.reg[0] = init;
+  let mut visited = HashSet::<Value>::new();
+  let mut last_seen = 0;
   loop {
-    if !visited.insert(comp.reg.clone()) { return false; }
-    if (ip as usize) >= program.size() { return true; }
-    ip = program.step(&mut comp, ip);
+    let ip = comp.reg[program.ip_index] as usize;
+    let (op, a, b, c) = program.instructions[ip];
+    comp.execute(op, a, b, c);
+    comp.reg[program.ip_index] += 1;
+    if op == OpCode::EqRR && (a == 0 || b == 0) {
+      let value = comp.reg[(a + b) as usize];
+      if !last { return value; }
+      if !visited.insert(value) { return last_seen; }
+      last_seen = value;
+    }
   }
 }
 
 pub fn run(content: &str) {
-  let program = Program::parse(content);
-  println!("{}", check_finish(&program, 0));
+  let program = Program::parse(&content);
+  let res1 = execute(&program, false);
+  let res2 = execute(&program, true);
+  println!("{} {}", res1, res2);
 }
